@@ -1,6 +1,6 @@
 # Agregar AQUI archivos repoless
 *.csv
-
+*.pkl
 
 
 # Byte-compiled / optimized / DLL files
