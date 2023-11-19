@@ -10,10 +10,17 @@ import multiprocessing as mp
 
 from tools.feed import procesar_file_csv
 
-from main import data_feed
-from m1_sentiment import M1_sentiment, M1_sentiment_ii, M1_sentiment_iii
-from m2_emotions import M2_emotions
-from m3_emotions import M3_emotions
+
+try:
+    from app.main import data_feed
+    from app.m1_sentiment import M1_sentiment, M1_sentiment_ii, M1_sentiment_iii
+    from app.m2_emotions import M2_emotions
+    from app.m3_emotions import M3_emotions
+except:
+    from main import data_feed
+    from m1_sentiment import M1_sentiment, M1_sentiment_ii, M1_sentiment_iii
+    from m2_emotions import M2_emotions
+    from m3_emotions import M3_emotions
 
 
 def run_func(func, args, results):
@@ -47,15 +54,17 @@ def parallel_excecutions(df:pd.DataFrame, parallel_funcs):
 
     result = run_processes(parallel_funcs, df)
     # result.name = nombre
-    #TODO: descarga del tipo backup - debe eliminarse
-    with open(f"_{__name__}_results.pkl", "wb") as f:
-        pickle.dump(result, f)
-
     return result
 
 
-def main_df_M1(args):
+def main_df_M1_I(args):
     m1 = M1_sentiment
+    return m1.main_df(args)
+def main_df_M1_II(args):
+    m1 = M1_sentiment_ii
+    return m1.main_df(args)
+def main_df_M1_III(args):
+    m1 = M1_sentiment_iii
     return m1.main_df(args)
 
 def main_df_M2(args):
@@ -74,10 +83,20 @@ def main_transformers(df):
     except:
         print("Warning: El DataFrame no posee un atributo 'name'")
         
-    output = M1_sentiment_iii.main_df(df)
-    with open(f"_{__name__}_M1_III.pkl", "wb") as f:
-        pickle.dump(output, f)
+    print("Arrancando predicciones de Sentimiento en paralelo")
+    parallel_funcs = [main_df_M1_I, main_df_M1_II, main_df_M1_III]
+    sentiment = parallel_excecutions(df, parallel_funcs)
+    
+    print("Arrancando predicciones de Emociones en paralelo")
+    parallel_funcs = [main_df_M2, main_df_M3]
+    emotions = parallel_excecutions(df, parallel_funcs)
+    
+    outputs =  [sentiment, emotions]
 
+    results = [pd.concat(sublista, axis=1) for sublista in outputs]
+    results = pd.concat(results, axis=1)
+    results = results.dropna()
+    return results
 
 if __name__ == "__main__":
     
@@ -88,11 +107,12 @@ if __name__ == "__main__":
     file_path = os.path.join(project_root, archivo)
         
     df = data_feed.main(file_path)
-    # df = df.head(300)
+    # print(f'La forma de df es {df.shape}')
+    df = df.head(351)
     df.name = nombre
     
-    main_transformers(df)
-    parallel_funcs = [main_df_M2, main_df_M3]
-    print("arrancando predicciones de emociones en paralelo")
-    output = parallel_excecutions(df, parallel_funcs)
+    results = main_transformers(df)
     print("Done!")
+    #TODO: descarga del tipo backup - debe eliminarse
+    with open(f"{__name__}-test.pkl", "wb") as f:
+        pickle.dump(results, f)
