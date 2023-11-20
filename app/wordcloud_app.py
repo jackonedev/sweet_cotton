@@ -8,11 +8,10 @@ from tools.feed import procesar_file_csv
 from app.main import data_feed
 from app.tokenizadores import tokenizador_i
 from app.word_cloud import WordCloud as WC
-# from app.wordcloud.output_analysis import main as Main
 
 
 
-def main_df(dataframe):
+def main_df(dataframe, filtros:dict=None):
     global df
 
     """
@@ -28,7 +27,7 @@ def main_df(dataframe):
     df.name = nombre
 
     # WORDCLOUD
-    filtros = []
+    # filtros = []
     result_list = WC.main_df(df, filtros)
     
     return result_list

@@ -147,7 +147,7 @@ def stop_words_multithread(batch_content, filtros_bool, max_workers):
     pass  
 
 #OK: devuelve una lista de DataFrames
-def stop_words_execution(df:pd.DataFrame, filtros_bool:list=None, max_workers:int=4) -> list:
+def stop_words_execution(df:pd.DataFrame, filtros_bool:dict=None, max_workers:int=4) -> list:
     """
     Esta funcion recibe 3 parámetros: df: pd.DataFrame, filtros:list = None, max_workers:int = 4
     Devuelve una lista de DataFrames: List[pd.DataFrame]
@@ -170,14 +170,14 @@ def stop_words_execution(df:pd.DataFrame, filtros_bool:list=None, max_workers:in
     df.name = name
     
     if filtros_bool is None:
-        filtros_bool = []
+        filtros_bool = {}
         
-    if not len(filtros_bool) > 0:
+    if len(filtros_bool) == 0:
         batch_content = aplicar_stopwords(df.content_cleaned.to_list())
         df["content_wc"] = batch_content
         #TODO: # assert isinstance(df.name, str), "se pierde el nombre"
         dataframes = [df]
-    else:#TODO
+    else:
         print("no está implementado")
         sys.exit(0)
         batch_content = stop_words_multithread(batch_content, filtros_bool, max_workers)
@@ -242,7 +242,7 @@ def main_df(df:pd.DataFrame, filtros=None, max_workers=4):# -> List[List[pd.Data
     path_utils = os.path.join(project_root, "word_cloud_config")
     df = word_filtering(df, *word_filters_load(path_utils))
 
-    dataframes = stop_words_execution(df)#, filtros, max_workers)
+    dataframes = stop_words_execution(df, filtros)#, max_workers)
 
     # CAMBIAR ESTRUCTURA: List[pd.DataFrame] -> List[wordcloud.WordCloud]
     wordcloud_storage = final_output(dataframes)
