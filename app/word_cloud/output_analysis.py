@@ -76,9 +76,9 @@ def load_configuration_file(path_config: str, names: list) -> dict:
         default_wc_params = copy(wc_params)
         # Default configuration in function of pd.DataFrame(...).name attribute
         if name.split("-")[-1] in ["positive", "negative"]:
-            if name.split("-")[-1] == "positive":
+            if name.split("-")[-1].startswith("positive"):
                 default_wc_params["color_func"] = (84, 179, 153)
-            elif name.split("-")[-1] == "negative":
+            elif name.split("-")[-1].startswith("negative"):
                 default_wc_params["color_func"] = (231, 102, 76)
         
         wc_params_storage.update({name:default_wc_params})
@@ -91,16 +91,14 @@ def load_filters(path_config):
     if os.path.isfile(os.path.join(path_config, file)):
         eliminar_palabras = limpieza_txt(path_config, file)
     else:
-        if False:
-            print("No se encontró el archivo 'eliminar_palabras_que_comiencen_con.txt' en el directorio de APP_utils")
+        print("Warning! Se identifica la ausencia de word_cloud_config/eliminar_palabras_que_comiencen_con.txt")
         eliminar_palabras = []
 
     file = "eliminar_palabras_wordcloud.txt"
     if os.path.isfile(os.path.join(path_config, file)):
         filtrar_palabras = limpieza_txt(path_config, file)
     else:
-        if False:
-            print("No se encontró el archivo 'eliminar_palabras_wordcloud.txt' en el directorio de APP_utils")
+        print("Warning! Se identifica la ausencia de word_cloud_config/eliminar_palabras_wordcloud.txt")
         filtrar_palabras = []
 
     return (eliminar_palabras, filtrar_palabras)
@@ -130,6 +128,10 @@ def update_wc_colormap(wc_params_storage, nombres):
     return wc_params_storage
 
 def wordcloud_content(subbatch, wc_params):
+    import random
+    #TODO: BORRAR
+    with open(f"diccionario de parametros {random.randint(1,999)}.txt", "w") as f:
+        f.write(str(wc_params))
 
     word_cloud = ""
     for row in subbatch:
@@ -207,7 +209,6 @@ def final_output(dataframes:List[pd.DataFrame]=None) -> List[WordCloud]:
         for i in range(len(nombres)):
             print("Filtros .txt detectados - applying filters")
             batch[i][0] = apply_filters(batch[i][0], *filtros)
-
             batch[i][1] = apply_filters([" ".join(element) for element in batch[i][1]], *filtros)
             batch[i][1] = [element.split(" ") for element in batch[i][1]]
         
@@ -228,7 +229,7 @@ def final_output(dataframes:List[pd.DataFrame]=None) -> List[WordCloud]:
     except:
         pass
 
-    output_name = nombres[0].split("-")[0]
+    output_name = nombres[0].split("-")[:-1]#TODO#TODO# REEMPLAZAR esta lógica por algúna que matchee las palabras en comun que tengan dos frames
     with open(os.path.join(path_config,"mascaras_png", f"{output_name}.txt"), 'w', encoding="UTF-8") as f:
         f.write(str(wc_params_storage[nombres[0]]))
         
