@@ -72,9 +72,8 @@ def emotions_features(predictions:list) -> pd.DataFrame:
 
   return df
 
-def main_df(df:pd.DataFrame, verbose:bool = False) -> pd.DataFrame:
+def main_df(df:pd.DataFrame, target) -> pd.DataFrame:
         
-    start = time.time()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     MODEL_NAME = "joeddav/distilbert-base-uncased-go-emotions-student"
@@ -83,14 +82,8 @@ def main_df(df:pd.DataFrame, verbose:bool = False) -> pd.DataFrame:
 
     pipeline_ii = TextClassificationPipeline(model=model_ii, tokenizer=tokenizer_ii, device=device, top_k=None)
 
-    predictions = classify_tweets(pipeline_ii, df, target="content")
+    predictions = classify_tweets(pipeline_ii, df, target=target)
     predictions = emotions_features(predictions)
 
-    # df = pd.concat([df, predictions], axis=1)
-
-    end = time.time()
-    if verbose:
-        print(f"tiempo de ejecución: {end - start} segs")
-    
     return predictions
 
