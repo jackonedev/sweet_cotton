@@ -49,16 +49,6 @@ def classify_tweets(model:pipeline, data:pd.DataFrame, target:str = "content") -
     for result in model(data_stream(dataset, target=target), padding= True, truncation= True, max_length= 512):
         res.append(result)
 
-    # # recode results to integers
-    # for column in tqdm(label_col_names, desc="Re-coding results"):
-    #     data.loc[:,column] = data[column].replace(to_replace = {'supports':-1, 'opposes':1, 'does not express an opinion about': 0})
-    # # Fill NaN values with zero
-    # data[label_col_names] = data[label_col_names].fillna(0)
-    # # Create columns for liberal and conservative classifications
-    # data[label_columns + '_lib'] = [1 if label <= -1 else 0 for label in data[label_col_names].sum(axis = 1)]
-    # data[label_columns + '_con'] = [1 if label >= 1 else 0 for label in data[label_col_names].sum(axis = 1)]
-    
-
     return res
 
 
@@ -104,28 +94,18 @@ def predictions_features(predictions:list) -> pd.DataFrame:
     return df
 
 @cronometro
-def main_df(df: pd.DataFrame, verbose:bool=False) -> pd.DataFrame:
+def main_df(df: pd.DataFrame, target) -> pd.DataFrame:
 
-    start = time.time()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     MODEL = "lxyuan/distilbert-base-multilingual-cased-sentiments-student"
     tokenizer_i = AutoTokenizer.from_pretrained(MODEL)
     model_i = AutoModelForSequenceClassification.from_pretrained(MODEL)
-
     pipeline_i = pipeline('text-classification', model=model_i, tokenizer=tokenizer_i, device=device, top_k=None)
 
     # Realizar predicción y ajustar resultados
-    predictions = classify_tweets(pipeline_i, df, target="content")
-
+    predictions = classify_tweets(pipeline_i, df, target=target)
     predictions = predictions_features(predictions)
-
-    # update dataset
-    # df = pd.concat([df, predictions], axis=1)
-    
-    end = time.time()
-    if verbose:
-        print(f"tiempo de ejecución: {end - start} segs")
     
     return predictions
 

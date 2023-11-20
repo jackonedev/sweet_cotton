@@ -92,9 +92,8 @@ def predictions_features(predictions:list) -> pd.DataFrame:
 
 
 @cronometro
-def main_df(df: pd.DataFrame, verbose:bool=False) -> pd.DataFrame:
+def main_df(df: pd.DataFrame, target) -> pd.DataFrame:
 
-    start = time.time()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     MODEL = "edumunozsala/bertin_base_sentiment_analysis_es"
@@ -104,18 +103,11 @@ def main_df(df: pd.DataFrame, verbose:bool=False) -> pd.DataFrame:
     pipeline_i = pipeline('text-classification', model=model_i, tokenizer=tokenizer_i, device=device, top_k=None)
 
     # Realizar predicción y ajustar resultados
-    predictions = classify_tweets(pipeline_i, df, target="content")
-
+    predictions = classify_tweets(pipeline_i, df, target=target)
     predictions = predictions_features(predictions)
 
-    # update dataset
-    # df = pd.concat([df, predictions], axis=1)
-    
-    end = time.time()
-    if verbose:
-        print(f"tiempo de ejecución: {end - start} segs")
-    
     return predictions
+
 
 
 
