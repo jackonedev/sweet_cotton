@@ -144,6 +144,7 @@ def main_df(df: pd.DataFrame, target) -> pd.DataFrame:
 
     # Realizar predicción y ajustar resultados
     predictions = classify_tweets(pipeline_i, df, target=target)
+    predictions = emotions_features(predictions)
 
     return predictions
 
