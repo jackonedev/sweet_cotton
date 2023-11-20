@@ -25,8 +25,6 @@ except:
 
 def run_func(func, args, results):
     print(f'Iniciando proceso en paralelo para "{func.__name__}" ...')
-    with open("Los_args.pkl", "wb") as f:
-        pickle.dump(args, f)
     results.append(func(*args))
 
 def parallel_excecutions(df:pd.DataFrame, target, parallel_funcs):
@@ -78,7 +76,6 @@ def main_df_M3(*args):
 
 
 def main_transformers(df, target):
-    
     try:
         nombre = df.name
     except:
@@ -92,10 +89,17 @@ def main_transformers(df, target):
     parallel_funcs = [main_df_M2, main_df_M3]
     emotions = parallel_excecutions(df, target, parallel_funcs)
     
-    outputs =  [sentiment, emotions]
+    outputs =  [
+        [frame.reset_index(drop=True) for frame in sentiment],
+        [frame.reset_index(drop=True) for frame in emotions]
+        ]
+
     results = [pd.concat(sublista, axis=1) for sublista in outputs]
     results = pd.concat(results, axis=1)
-    results = results.dropna()
+    
+    right_values = results.sentiment_i.dropna().index
+    results = results.loc[right_values]
+    
     try:
         results.name = nombre
     except:
