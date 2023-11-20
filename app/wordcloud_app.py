@@ -15,14 +15,8 @@ from app.word_cloud import WordCloud as WC
 def main_df(dataframe):
     global df
 
-    """Tengo miedo de confiar en las desventajas de Python
-    Pero:
-        - Puedo usar esta función para agregar columnas al df de forma implícita
-    Pero:
-        - funciona
-
-    Como me enfrento al miedo, voy a probar con la sentencia global
-    En caso que no funcione, la función va a retornar una tupla
+    """
+    TODO: 
 
     """
 
