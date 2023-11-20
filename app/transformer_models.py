@@ -55,7 +55,7 @@ def parallel_excecutions(df:pd.DataFrame, target, parallel_funcs):
             return list(results)
 
     result = run_processes(parallel_funcs, df, target)
-    # result.name = nombre
+    result.name = nombre
     return result
 
 
@@ -94,9 +94,6 @@ def main_transformers(df, target):
     emotions = parallel_excecutions(df, target, parallel_funcs)
     
     outputs =  [sentiment, emotions]
-    #TODO: descarga del tipo backup - debe eliminarse
-    with open(f"{__name__}-outputs.pkl", "wb") as f:
-        pickle.dump(outputs, f)
     results = [pd.concat(sublista, axis=1) for sublista in outputs]
     results = pd.concat(results, axis=1)
     results = results.dropna()
