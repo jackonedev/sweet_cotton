@@ -86,7 +86,7 @@ def load_configuration_file(path_config: str, names: list) -> dict:
     return wc_params_storage
 
 def load_filters(path_config):
-    # leer archivos txt de configuracion y correr modulo de filtrado
+    """Fuincion que lee los archivos txt de configuracion y devuelve los resultados en una tupla"""
     file = "eliminar_palabras_que_comiencen_con.txt"
     if os.path.isfile(os.path.join(path_config, file)):
         eliminar_palabras = limpieza_txt(path_config, file)
@@ -106,10 +106,9 @@ def load_filters(path_config):
     return (eliminar_palabras, filtrar_palabras)
 
 def apply_filters(batch: list, filter_1, filter_2) -> list:
-        
         batch = remover_palabra(batch, filter_1)
         batch = filtrado_palabras(batch, filter_2)
-        
+
         return batch
 
 def update_wc_colormap(wc_params_storage, nombres):
@@ -131,7 +130,7 @@ def update_wc_colormap(wc_params_storage, nombres):
     return wc_params_storage
 
 def wordcloud_content(subbatch, wc_params):
-    from wordcloud import WordCloud
+
     word_cloud = ""
     for row in subbatch:
         row += " "
@@ -183,7 +182,7 @@ def final_output(dataframes:List[pd.DataFrame]=None) -> List[WordCloud]:
     Respecto al nombre de cada DataFrame:
         - si el archivo de apertura se llama, nombre-arhivo_valores_adicionales.extension
         - 'nombre-archivo' siempre será el comienzo
-        - 'nombre-archivo_{filtered:optional}': el elemento split('_')[1] define la activación del filtro
+        - ERROR: 'nombre-archivo_{filtered:optional}': el elemento split('_')[1] define la activación del filtro
         - 'nombre-archivo_{}_{sentiment:optional}': el elemento split('_')[-1] define si se aplican valores por default al df
     """
     
@@ -200,22 +199,23 @@ def final_output(dataframes:List[pd.DataFrame]=None) -> List[WordCloud]:
         token = dataframes[i].token_wc.to_list()
         batch.append([content, token])
     
-    # Filtrado: on/off depends on the name of dataframes
+    # Filtrado: on/off depends on the content of config files
     filtros = load_filters(path_config)
-    for i in range(len(nombres)):
-        nombre = nombres[i].split("_")
-        if len(nombre) > 1:
-            if nombre[1] == "filtered":
-                print("activando filtros para: ",nombre[0])#TODO: Borrar
-                batch[i][0] = apply_filters(batch[i][0], *filtros)
-                batch[i][1] = apply_filters(batch[i][1], *filtros)
+    ## Si los archivos están vacíos no se aplican filtros
+    ## Si los archivos poseen contenido, se activan los filtros
+    if (len(filtros[0]) + len(filtros[1])) > 0:
+        for i in range(len(nombres)):
+            print("Filtros .txt detectados - applying filters")
+            batch[i][0] = apply_filters(batch[i][0], *filtros)
 
+            batch[i][1] = apply_filters([" ".join(element) for element in batch[i][1]], *filtros)
+            batch[i][1] = [element.split(" ") for element in batch[i][1]]
+        
     # Wordcloud params update
     wc_params_storage = update_wc_colormap(wc_params_storage, nombres)
     # plt.figure(figsize=(20,8))
 
     # Wordcloud object instanciation
-    #TODO: optimization
     wordcloud_storage = []
     for i, name in enumerate(nombres):
         wc_content = wordcloud_content(batch[i][0], wc_params_storage[name])

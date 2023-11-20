@@ -144,6 +144,7 @@ def token_aggregation(df):
 
 
 def stop_words_multithread(batch_content, filtros_bool, max_workers):
+    # multithread; va a ser necesario ordenar los sub-batches del output
     pass  
 
 #OK: devuelve una lista de DataFrames
@@ -178,10 +179,22 @@ def stop_words_execution(df:pd.DataFrame, filtros_bool:dict=None, max_workers:in
         #TODO: # assert isinstance(df.name, str), "se pierde el nombre"
         dataframes = [df]
     else:
-        print("no está implementado")
-        sys.exit(0)
-        batch_content = stop_words_multithread(batch_content, filtros_bool, max_workers)
-        # multithread; va a ser necesario ordenar los sub-batches del output
+        if "content_wc" not in df.columns:
+            print("Error: multithread stop_words not implemented")
+            print("Please, run the operation without filters.")
+            print("A 'content_wc' column in need it in order")
+            print("to apply the filters...")
+            batch_content = stop_words_multithread(
+                batch_content,
+                filtros_bool,
+                max_workers
+                )#TODO
+            sys.exit(0)
+        dataframes = []
+        for llave in filtros_bool.keys():
+            frame = df[filtros_bool[llave]]
+            frame.name = f"{name}-{llave}"
+            dataframes.append(frame)
     return dataframes
 
 
