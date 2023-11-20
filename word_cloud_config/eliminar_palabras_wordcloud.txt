@@ -106,3 +106,4 @@ anda
 casa
 foto
 radicale
+operador
