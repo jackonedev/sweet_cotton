@@ -1,0 +1,1 @@
+{'relative_scaling': 0.001, 'max_words': 300, 'min_font_size': 18, 'max_font_size': 80, 'mode': 'RGB', 'background_color': 'white', 'min_word_length': 4, 'prefer_horizontal': 1, 'color_func': (34, 97, 170)}
