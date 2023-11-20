@@ -27,7 +27,7 @@ def run_func(func, args, results):
     print(f'Iniciando proceso en paralelo para "{func.__name__}" ...')
     with open("Los_args.pkl", "wb") as f:
         pickle.dump(args, f)
-    results.append(func(args[0]))
+    results.append(func(*args))
 
 def parallel_excecutions(df:pd.DataFrame, target, parallel_funcs):
     nombre = df.name
@@ -59,23 +59,23 @@ def parallel_excecutions(df:pd.DataFrame, target, parallel_funcs):
     return result
 
 
-def main_df_M1_I(args):
+def main_df_M1_I(*args):
     m1 = M1_sentiment
-    return m1.main_df(args)
-def main_df_M1_II(args):
+    return m1.main_df(*args)
+def main_df_M1_II(*args):
     m1 = M1_sentiment_ii
-    return m1.main_df(args)
-def main_df_M1_III(args):
+    return m1.main_df(*args)
+def main_df_M1_III(*args):
     m1 = M1_sentiment_iii
-    return m1.main_df(args)
+    return m1.main_df(*args)
 
-def main_df_M2(args):
+def main_df_M2(*args):
     m2 = M2_emotions
-    return m2.main_df(args)
+    return m2.main_df(*args)
 
-def main_df_M3(args):
+def main_df_M3(*args):
     m3 = M3_emotions
-    return m3.main_df(args)
+    return m3.main_df(*args)
 
 
 def main_transformers(df, target):
@@ -89,17 +89,17 @@ def main_transformers(df, target):
     parallel_funcs = [main_df_M1_I, main_df_M1_II, main_df_M1_III]
     sentiment = parallel_excecutions(df, target, parallel_funcs)
     
-    # print("Arrancando predicciones de Emociones en paralelo")
-    # parallel_funcs = [main_df_M2, main_df_M3]
-    # emotions = parallel_excecutions(df, target, parallel_funcs)
+    print("Arrancando predicciones de Emociones en paralelo")
+    parallel_funcs = [main_df_M2, main_df_M3]
+    emotions = parallel_excecutions(df, target, parallel_funcs)
     
-    # outputs =  [sentiment, emotions]
+    outputs =  [sentiment, emotions]
 
-    # results = [pd.concat(sublista, axis=1) for sublista in outputs]
-    # results = pd.concat(results, axis=1)
-    # results = results.dropna()
-    # return results
-    return sentiment
+    results = [pd.concat(sublista, axis=1) for sublista in outputs]
+    results = pd.concat(results, axis=1)
+    results = results.dropna()
+    return results
+
 
 if __name__ == "__main__":
     
@@ -114,7 +114,7 @@ if __name__ == "__main__":
     df = df.head(351)
     df.name = nombre
     
-    results = main_transformers(df, target="content_cleaned")
+    results = main_transformers(df, target="@timestamp")
     print("Done!")
     #TODO: descarga del tipo backup - debe eliminarse
     with open(f"{__name__}-test.pkl", "wb") as f:

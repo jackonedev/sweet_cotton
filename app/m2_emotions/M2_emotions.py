@@ -149,11 +149,6 @@ def main_df(df: pd.DataFrame, target) -> pd.DataFrame:
 
 
 
-
-
-
-
-
 if __name__ == "__main__":
     
     file_name = "octubre-untitled.csv"
