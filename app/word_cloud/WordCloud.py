@@ -179,16 +179,17 @@ def stop_words_execution(df:pd.DataFrame, filtros_bool:dict=None, max_workers:in
         #TODO: # assert isinstance(df.name, str), "se pierde el nombre"
         dataframes = [df]
     else:
+        assert "content_wc" in df.columns, "Para aplicar filtros, obtener 'content_wc' previamente"
         if "content_wc" not in df.columns:
             print("Error: multithread stop_words not implemented")
             print("Please, run the operation without filters.")
             print("A 'content_wc' column in need it in order")
             print("to apply the filters...")
-            batch_content = stop_words_multithread(
-                batch_content,
-                filtros_bool,
-                max_workers
-                )#TODO
+            # batch_content = stop_words_multithread(
+            #     batch_content,
+            #     filtros_bool,
+            #     max_workers
+            #     )#TODO: define batch_content
             sys.exit(0)
         dataframes = []
         for llave in filtros_bool.keys():
