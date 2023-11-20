@@ -228,7 +228,7 @@ def final_output(dataframes:List[pd.DataFrame]=None) -> List[WordCloud]:
     except:
         pass
 
-    output_name = nombres[0].split("_")[0]
+    output_name = nombres[0].split("-")[0]
     with open(os.path.join(path_config,"mascaras_png", f"{output_name}.txt"), 'w', encoding="UTF-8") as f:
         f.write(str(wc_params_storage[nombres[0]]))
         
