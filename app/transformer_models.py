@@ -25,12 +25,14 @@ except:
 
 def run_func(func, args, results):
     print(f'Iniciando proceso en paralelo para "{func.__name__}" ...')
+    with open("Los_args.pkl", "wb") as f:
+        pickle.dump(args, f)
     results.append(func(args[0]))
 
-def parallel_excecutions(df:pd.DataFrame, parallel_funcs):
+def parallel_excecutions(df:pd.DataFrame, target, parallel_funcs):
     nombre = df.name
     
-    def run_processes(funcs: list, dataframe):
+    def run_processes(funcs: list, *args):
         "Multiprocesos, paralelismo: Ejecuta multiples funciones, con el mismo argumento"
         # assert isinstance(dataframe, type(pd.DataFrame()))
         
@@ -44,7 +46,7 @@ def parallel_excecutions(df:pd.DataFrame, parallel_funcs):
             results = manager.list()
             operations = []
             for func in funcs:
-                process = mp.Process(target=run_func, args=(func, (dataframe,), results))
+                process = mp.Process(target=run_func, args=(func, args, results))
                 process.start()
                 operations.append(process)
             for op in operations:
@@ -52,7 +54,7 @@ def parallel_excecutions(df:pd.DataFrame, parallel_funcs):
             
             return list(results)
 
-    result = run_processes(parallel_funcs, df)
+    result = run_processes(parallel_funcs, df, target)
     # result.name = nombre
     return result
 
@@ -76,7 +78,7 @@ def main_df_M3(args):
     return m3.main_df(args)
 
 
-def main_transformers(df):
+def main_transformers(df, target):
     
     try:
         nombre = df.name
@@ -85,18 +87,19 @@ def main_transformers(df):
         
     print("Arrancando predicciones de Sentimiento en paralelo")
     parallel_funcs = [main_df_M1_I, main_df_M1_II, main_df_M1_III]
-    sentiment = parallel_excecutions(df, parallel_funcs)
+    sentiment = parallel_excecutions(df, target, parallel_funcs)
     
-    print("Arrancando predicciones de Emociones en paralelo")
-    parallel_funcs = [main_df_M2, main_df_M3]
-    emotions = parallel_excecutions(df, parallel_funcs)
+    # print("Arrancando predicciones de Emociones en paralelo")
+    # parallel_funcs = [main_df_M2, main_df_M3]
+    # emotions = parallel_excecutions(df, target, parallel_funcs)
     
-    outputs =  [sentiment, emotions]
+    # outputs =  [sentiment, emotions]
 
-    results = [pd.concat(sublista, axis=1) for sublista in outputs]
-    results = pd.concat(results, axis=1)
-    results = results.dropna()
-    return results
+    # results = [pd.concat(sublista, axis=1) for sublista in outputs]
+    # results = pd.concat(results, axis=1)
+    # results = results.dropna()
+    # return results
+    return sentiment
 
 if __name__ == "__main__":
     

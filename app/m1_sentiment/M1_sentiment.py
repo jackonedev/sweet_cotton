@@ -45,16 +45,21 @@ except:
 
 
 
-def main_df(df:pd.DataFrame, max_workers:int=4) -> pd.DataFrame:
+def main_df(df:pd.DataFrame, target, max_workers:int=4) -> pd.DataFrame:
 
     ## IMPLEMENTACION DEL MODELO
     start_i = time.time()
     MODEL = "cardiffnlp/twitter-xlm-roberta-base-sentiment"
-    content_batch = df.content.to_list()
-    nx = len(content_batch) // max_workers
-    
-    m_examples = [content_batch[i_antiguo:i] for i_antiguo, i in zip(range(0, len(content_batch), nx), range(nx, len(content_batch)+nx, nx))]
 
+    if target in df.columns:
+        content_batch = df[target].to_list()
+    else:
+        print("No se encuentra la columna 'target' en el DataFrame")
+        sys.exit(0)
+    
+
+    nx = len(content_batch) // max_workers
+    m_examples = [content_batch[i_antiguo:i] for i_antiguo, i in zip(range(0, len(content_batch), nx), range(nx, len(content_batch)+nx, nx))]
     m_datasets = [df.iloc[i_antiguo:i] for i_antiguo, i in zip(range(0, len(content_batch), nx), range(nx, len(content_batch)+nx, nx)) if i != 0]
     m_datasets = [dataset.reset_index(drop=True) for dataset in m_datasets]
 
