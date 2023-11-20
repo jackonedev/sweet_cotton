@@ -28,6 +28,7 @@ import numpy, pickle
 
 
 #warning# Rompiendo el diseño de la arquitectura
+from tools.messure import cronometro
 try:
     from app.main.shared_resources_feed import menu
 except:
@@ -131,6 +132,7 @@ def emotions_features(predictions:list) -> pd.DataFrame:
 
     return df
 
+@cronometro
 def main_df(df: pd.DataFrame, target) -> pd.DataFrame:
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

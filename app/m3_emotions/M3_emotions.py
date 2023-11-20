@@ -4,7 +4,7 @@ import torch
 from datasets import Dataset
 import time
 
-
+from tools.messure import cronometro
 
 # define data streamer
 def data_stream(samples: Dataset, target:str = 'content'):
@@ -72,6 +72,7 @@ def emotions_features(predictions:list) -> pd.DataFrame:
 
   return df
 
+@cronometro
 def main_df(df:pd.DataFrame, target) -> pd.DataFrame:
         
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
