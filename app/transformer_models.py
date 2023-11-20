@@ -111,7 +111,7 @@ if __name__ == "__main__":
     df = df.head(351)
     df.name = nombre
     
-    results = main_transformers(df)
+    results = main_transformers(df, target="content_cleaned")
     print("Done!")
     #TODO: descarga del tipo backup - debe eliminarse
     with open(f"{__name__}-test.pkl", "wb") as f:
