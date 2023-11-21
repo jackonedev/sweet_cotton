@@ -38,7 +38,7 @@ def load_resources():
     filtrado_palabras = resources["wordcloud_filtrado_palabras"]
 
 def load_configuration_file(path_config: str, names: list) -> dict:
-    global mascara_wordcloud
+    global mascara_wordcloud, mascara_name
     #  LOAD CONFIGURATION FROM LOCAL FILE
     # Create wc_params dict from txt file
     with open(os.path.join(path_config,"mascaras_png", "wordcloud_mask_config.txt"), "r", encoding="UTF-8") as file:
@@ -64,7 +64,7 @@ def load_configuration_file(path_config: str, names: list) -> dict:
     try:
         print(f"Implementando configuración con Máscara: {wc_params['mascara']}")
         mascara_wordcloud = np.array(Image.open(wc_params["mascara"]))
-        wc_params.pop("mascara")
+        mascara_name = wc_params.pop("mascara")
         
     except FileNotFoundError as e:
         print("ERROR DE SISTEMA: Colocar un archivo .png con una mascara en tamaño deseado en la carpeta de configuracion")
@@ -240,6 +240,11 @@ def final_output(dataframes:List[pd.DataFrame]=None) -> List[WordCloud]:
             output_name = "-".join(output_name)
     except IndexError:
         output_name = nombres[0]
+        
+    try:
+        wc_params_storage[nombres[0]]["mascara"] = mascara_name
+    except:
+        pass
 
     with open(os.path.join(path_config,"mascaras_png", f"{output_name}.txt"), 'w', encoding="UTF-8") as f:
         f.write(str(wc_params_storage[nombres[0]]))
