@@ -211,7 +211,6 @@ def final_output(dataframes:List[pd.DataFrame]=None) -> List[WordCloud]:
     ## Si los archivos poseen contenido, se activan los filtros
     if (len(filtros[0]) + len(filtros[1])) > 0:
         for i in range(len(nombres)):
-            print("Filtros .txt detectados - applying filters")
             batch[i][0] = apply_filters(batch[i][0], *filtros)
             batch[i][1] = apply_filters([" ".join(element) for element in batch[i][1]], *filtros)
             batch[i][1] = [element.split(" ") for element in batch[i][1]]
