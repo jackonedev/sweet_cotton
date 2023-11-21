@@ -149,8 +149,10 @@ def wordcloud_content(subbatch, wc_params):
         wordcloud.contour_color = color_tuple
     else:
         wordcloud.contour_color = (0, 0, 0)
-    
-    wc_params["color_func"] = color_tuple
+    try:
+        wc_params["color_func"] = color_tuple
+    except:
+        pass
     return wordcloud.generate(word_cloud)
 
 def wordcloud_token(subbatch:list, wc_params:dict) -> WordCloud:
@@ -172,8 +174,10 @@ def wordcloud_token(subbatch:list, wc_params:dict) -> WordCloud:
         wordcloud.contour_color = color_tuple
     else:
         wordcloud.contour_color = (0, 0, 0)
-    
-    wc_params["color_func"] = color_tuple
+    try:    
+        wc_params["color_func"] = color_tuple
+    except:
+        pass
     return wordcloud.generate(word_cloud)
 
 
