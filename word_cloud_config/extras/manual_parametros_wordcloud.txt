@@ -1,0 +1,43 @@
+# Informacion tecnica sobre Nubes de palabras
+
+[link documentacion](https://amueller.github.io/word_cloud/generated/wordcloud.WordCloud.html?highlight=background)
+
+
+## Introducción
+
+A continuación se describen los parametros que podemos ajustar durante la creación del objeto encargado de crear la nube de palabras.
+
+El WordCloud tiene dos grandes tipos de outputs: los rectangulares, y la máscara con formas. Algunos parámetros como la base y la altura, son solo validos para las salidas del tipo rectangular.
+
+
+## Descripción de los parámetros
+
+1. font_path: Si se quiere cambiar la tipografía de la letra se debe entregar un fichero (OTF o TTF)
+
+2. width, height: base y altura del rectángulo.
+
+3. prefer_horizontal: controla si se quiere palabras totalmente horizontal, o si se agregan palabras en vertical (incluso con valor 0 podría ser que resulten todas verticales).
+
+4. mask: se requiere un fichero con extensión png que sea fondo blanco con una figura negra, y esa será la forma del output. La máscara debe tener el tamaño correspondiente a la salida esperada.
+
+5. contour_width, contour_color: Si se utiliza una máscara podemos agregar un borde con espesor y color determinado.
+
+6. min_font_size, max_font_size: El tamaño de letra más pequeño utilizado en la nube de palabras, y el más grande.
+
+7. max_words: Cantidad de palabras totales por nube
+
+8. color_func: Elegir el color de las palabras por medio de código RGB.
+
+9. mode, background_color, colormap: Para elegir un color de fondo o que el fondo sea transparente o utilizando una paleta de matplotlib.
+
+10. relative_scaling: tiene que ver con el tamaño de las palabras. Si relative_scaling == 1, una palabra que aparezca el doble de veces que la otra, será el doble de grande. si relative_scaling == 0.5 (default) será solo un 50% más grande. Si es 0 solo se visualizaran palabras rankeadas.
+
+11. min_word_length: mínima cantidad de letras que una palabra debe tener para que sea incluida.
+
+
+## Conclusiones
+
+- Podemos utilizar colores para separar por emoción y sentimiento predominante.
+- Podemos utilizar figuras con forma para separar por emoción y sentimiento predominante.
+
+
