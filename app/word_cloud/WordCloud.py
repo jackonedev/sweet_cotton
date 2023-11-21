@@ -1,16 +1,13 @@
-## Librerias Nativas de Python y de Terceros
 import sys, os
-import pandas as pd
-# import numpy as np
-# from typing import List
-# from wordcloud import WordCloud
-
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, project_root)
 
-## Aplicaciones propias
-from app.main.main import wordcloud as ingest_resources
+import pandas as pd
+import warnings
+warnings.filterwarnings("ignore")
 
+from tools.feature_adjust import eliminar_caracteres_no_imprimibles, aplicar_stopwords
+from app.main.main import wordcloud as ingest_resources
 try:
     from app.word_cloud.main import limpieza_txt
     from app.word_cloud.output_analysis import final_output
@@ -18,8 +15,7 @@ except:
     from .main import limpieza_txt
     from .output_analysis import final_output
 
-## Libreria propia
-from tools.feature_adjust import eliminar_caracteres_no_imprimibles, aplicar_stopwords
+
 
 
 
