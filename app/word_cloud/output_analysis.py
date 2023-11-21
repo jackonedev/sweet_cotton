@@ -110,34 +110,30 @@ def apply_filters(batch: list, filter_1, filter_2) -> list:
         return batch
 
 def update_wc_colormap(wc_params_storage, nombres):
-    global color_tuple, color_func
     """Funcion alternativa "colormap":
     pinta las palabras de distinto color en funcion del tamaño
     para ello debe eliminarse el parámetro por default "color_func"."""
     for name in nombres:
         wc_params = wc_params_storage[name]
+        # si existe y no está vacío
         if "colormap" in wc_params.keys() and wc_params["colormap"] != "":
             wc_params.pop("color_func")
-        else:
-            color_tuple = wc_params["color_func"]
-            color_func = lambda *args, **kwargs: color_tuple
-            wc_params.pop("color_func")
-        
+        # si existe y está vacío
+        elif "colormap" in wc_params.keys():
+            wc_params.pop("colormap")
         wc_params_storage[name] |= wc_params
 
     return wc_params_storage
 
 def wordcloud_content(subbatch, wc_params):
-    import random
-    #TODO: BORRAR
-    with open(f"diccionario de parametros {random.randint(1,999)}.txt", "w") as f:
-        f.write(str(wc_params))
-
     word_cloud = ""
     for row in subbatch:
         row += " "
         word_cloud+= row
 
+    # Interpretación y ajuste de parámetros
+    if not "colormap" in wc_params.keys() and "color_func" in wc_params.keys():
+        color_tuple = wc_params.pop("color_func")
     ## Se cambia el mode de RGBA a RGB y se cambia el background color
     # se añaden las lineas de contorno y color del contorno
     wordcloud = WordCloud(
@@ -146,30 +142,40 @@ def wordcloud_content(subbatch, wc_params):
         contour_width=1.0,
         **wc_params)
     
-    ## si existe colormap. no existe contour
+    ## Actualización de parámetros
+    ## si existe colormap. no existe color_func
     if not "colormap" in wc_params.keys():
-        wordcloud.color_func=color_func
+        wordcloud.color_func=lambda *args, **kwargs: color_tuple
         wordcloud.contour_color = color_tuple
     else:
         wordcloud.contour_color = (0, 0, 0)
     
+    wc_params["color_func"] = color_tuple
     return wordcloud.generate(word_cloud)
 
 def wordcloud_token(subbatch:list, wc_params:dict) -> WordCloud:
     word_cloud = ""
     word_cloud = [word_cloud + " ".join(twc) for twc in subbatch]
     word_cloud = " ".join(word_cloud).strip()
+    
+    if not "colormap" in wc_params.keys() and "color_func" in wc_params.keys():
+        color_tuple = wc_params.pop("color_func")
+    else:#BORRAR
+        print("Error! No está el parámetros color_func ni colormap")
+        
     wordcloud = WordCloud(
         mask=mascara_wordcloud,
         collocations=False,
         contour_width=1.0,
         **wc_params)
+    
     if not "colormap" in wc_params.keys():
-        wordcloud.color_func=color_func
+        wordcloud.color_func=lambda *args, **kwargs: color_tuple
         wordcloud.contour_color = color_tuple
     else:
         wordcloud.contour_color = (0, 0, 0)
     
+    wc_params["color_func"] = color_tuple
     return wordcloud.generate(word_cloud)
 
 
@@ -193,6 +199,11 @@ def final_output(dataframes:List[pd.DataFrame]=None) -> List[WordCloud]:
     # Presets    
     nombres = [d.name for d in dataframes]
     wc_params_storage = load_configuration_file(path_config, nombres)
+    print("Borrar 1:")#TODO: BORRAR
+    import pickle
+    with open("wc_params_storage_1.pkl", "wb") as f:
+        pickle.dump(wc_params_storage, f)
+    
     
     # Batch Creation: batch = [[batch_content, batch_token], ...]
     batch = []
@@ -214,6 +225,11 @@ def final_output(dataframes:List[pd.DataFrame]=None) -> List[WordCloud]:
         
     # Wordcloud params update
     wc_params_storage = update_wc_colormap(wc_params_storage, nombres)
+    print("Borrar 2:")#TODO: BORRAR
+    with open("wc_params_storage_2.pkl", "wb") as f:
+        pickle.dump(wc_params_storage, f)
+    with open("nombres_match_wc_keys.pkl", "wb") as f:
+        pickle.dump(nombres, f)
     # plt.figure(figsize=(20,8))
 
     # Wordcloud object instanciation
