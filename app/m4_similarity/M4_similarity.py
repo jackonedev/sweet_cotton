@@ -1,37 +1,10 @@
 import sys, os, time, concurrent
 import pandas as pd
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
-from datasets import Dataset
-from tqdm import tqdm
-import numpy, pickle
 import torch
-from typing import Any
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-app_root = os.path.dirname(__file__) if "__file__" in locals() else os.getcwd()
 sys.path.insert(0, project_root)
-
-# https://github.com/huggingface/transformers/issues/22387
-
-
-
-
-
-# define data streamer
-def data_stream(data:Any, target:str = 'content'):
-    try:
-        if isinstance(data, list):
-            data = pd.DataFrame(data).T
-            data.columns = [target]
-    except AttributeError:
-        assert isinstance(data, pd.DataFrame), "data must be a pandas DataFrame"
-    
-    dataset = Dataset.from_pandas(data)    
-        
-    for i in range(dataset.num_rows):
-        yield dataset[target][i]
-
-
 
 
 def predictions_features(predicciones:dict, m_datasets:list, max_workers:int) -> pd.DataFrame:
@@ -55,28 +28,28 @@ def predictions_features(predicciones:dict, m_datasets:list, max_workers:int) ->
 
 
 
-def main_df(df: pd.DataFrame, topicos:list, max_workers:int=4) -> pd.DataFrame:
+def main_df(df: pd.DataFrame, target, topicos:list, max_workers:int=4) -> pd.DataFrame:
 
     start = time.time()
 
     MODEL = "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli"
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
     tokenizer_i = AutoTokenizer.from_pretrained(MODEL)
     model_i = AutoModelForSequenceClassification.from_pretrained(MODEL)
-    # model = pipeline("zero-shot-classification", model=model_i, tokenizer=tokenizer_i, device=device)
     model = pipeline("zero-shot-classification", model=model_i, tokenizer=tokenizer_i)
 
     ## CONFIGURACION DEL DATASET
-    content_batch = df.content.to_list()
+    if target not in df.columns:
+        print("Error. El target introducido no se encuentra dentro del DataFrame")
+        sys.exit(0)
+    
+    content_batch = df[target].to_list()
     nx = len(content_batch) // max_workers
     m_examples = [content_batch[i_antiguo:i] for i_antiguo, i in zip(range(0, len(content_batch), nx), range(nx, len(content_batch)+nx, nx))]
     m_datasets = [df.iloc[i_antiguo:i] for i_antiguo, i in zip(range(0, len(content_batch), nx), range(nx, len(content_batch)+nx, nx)) if i != 0]
     m_datasets = [dataset.reset_index(drop=True) for dataset in m_datasets]
 
-    
-    
     ## FUNCION QUE EJECUTA ITERATIVAMENTE EL HILO
     predicciones = {}
     def predecir(inputs, position):

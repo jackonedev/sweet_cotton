@@ -129,9 +129,9 @@ def obtener_graficos(df):
     vf_list_torta = []
     for i in range(3):
         if i == 2:
-            vf_list_torta.append(grafico_torta(df.loc[emotion_sample], i, color_sequence=color_sequence[i]))
+            vf_list_torta.append(grafico_torta(df.loc[emotion_sample], i, color_sequence=None))
         else:
-            vf_list_torta.append(grafico_torta(df, i, color_sequence=color_sequence[i]))
+            vf_list_torta.append(grafico_torta(df, i, color_sequence=None))
 
 
     ## figures para graficos radiales
