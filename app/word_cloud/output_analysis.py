@@ -160,8 +160,6 @@ def wordcloud_token(subbatch:list, wc_params:dict) -> WordCloud:
     
     if not "colormap" in wc_params.keys() and "color_func" in wc_params.keys():
         color_tuple = wc_params.pop("color_func")
-    else:#BORRAR
-        print("Error! No está el parámetros color_func ni colormap")
         
     wordcloud = WordCloud(
         mask=mascara_wordcloud,
@@ -199,11 +197,6 @@ def final_output(dataframes:List[pd.DataFrame]=None) -> List[WordCloud]:
     # Presets    
     nombres = [d.name for d in dataframes]
     wc_params_storage = load_configuration_file(path_config, nombres)
-    print("Borrar 1:")#TODO: BORRAR
-    import pickle
-    with open("wc_params_storage_1.pkl", "wb") as f:
-        pickle.dump(wc_params_storage, f)
-    
     
     # Batch Creation: batch = [[batch_content, batch_token], ...]
     batch = []
@@ -225,12 +218,6 @@ def final_output(dataframes:List[pd.DataFrame]=None) -> List[WordCloud]:
         
     # Wordcloud params update
     wc_params_storage = update_wc_colormap(wc_params_storage, nombres)
-    print("Borrar 2:")#TODO: BORRAR
-    with open("wc_params_storage_2.pkl", "wb") as f:
-        pickle.dump(wc_params_storage, f)
-    with open("nombres_match_wc_keys.pkl", "wb") as f:
-        pickle.dump(nombres, f)
-    # plt.figure(figsize=(20,8))
 
     # Wordcloud object instanciation
     wordcloud_storage = []
@@ -240,12 +227,20 @@ def final_output(dataframes:List[pd.DataFrame]=None) -> List[WordCloud]:
         wordcloud_storage.append([wc_content, wc_token])
 
     # Wordcloud config backup
-    try:# recomposition of the original configuration
-        wc_params_storage[nombres[0]]["color_func"] = color_tuple
-    except:
-        pass
+    try:
+        output_name = []
+        aa = nombres[0].split("-")
+        bb = nombres[1].split("-")
+        if len(aa) != len(bb):
+            output_name = nombres[0]
+        else:
+            for i in range(len(aa)):
+                if aa[i] == bb[i]:
+                    output_name.append(aa[i])
+            output_name = "-".join(output_name)
+    except IndexError:
+        output_name = nombres[0]
 
-    output_name = nombres[0].split("-")[:-1]#TODO#TODO# REEMPLAZAR esta lógica por algúna que matchee las palabras en comun que tengan dos frames
     with open(os.path.join(path_config,"mascaras_png", f"{output_name}.txt"), 'w', encoding="UTF-8") as f:
         f.write(str(wc_params_storage[nombres[0]]))
         
