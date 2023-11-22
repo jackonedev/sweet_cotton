@@ -23,11 +23,13 @@ def main_df(dataframe, filtros:dict=None):
     nombre, archivo = procesar_file_csv(nombre)
     
     ## TOKENIZADOR
-    df = tokenizador_i.main_df_V2(dataframe)
+    if not "tokens_i" in dataframe.columns:
+        df = tokenizador_i.main_df_V2(dataframe)
+    else:
+        df = dataframe
     df.name = nombre
-
+    
     # WORDCLOUD
-    # filtros = []
     result_list = WC.main_df(df, filtros)
     
     return result_list
